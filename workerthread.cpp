@@ -7,6 +7,7 @@
 #include <QImage>
 #include <fstream>
 
+
 WorkerThread::WorkerThread(const QString& file, const QString& path, const QString& newPath)
   : fileName(file)
   , filePath(path)
@@ -25,8 +26,7 @@ void WorkerThread::convert()
     qWarning() << "no file name to convert";
     return;
   }
-  bool compress = fileName.toLower().contains(".bmp");
-  if (compress)
+  if (!fileName.toLower().contains(".barch"))
   {
     packFile(filePath);
   }
@@ -40,10 +40,16 @@ void WorkerThread::packFile(QString path)
 {
   //Why test images are in indexed format?
   QImage img = QImage(path);
+
+  if ((img.format() != QImage::Format_Indexed8) && (img.format() != QImage::Format_Grayscale8))
+  {
+      emit errorMessage("Only 8 bit birmats are supported");
+      return;
+  }
+
   if (img.format() != QImage::Format_Indexed8)
   {
-    qWarning() << "Image format " << img.format();
-    return;
+    img = img.convertToFormat(QImage::Format_Grayscale8);
   }
   img = img.convertToFormat(QImage::Format_Grayscale8);
   barch::Bitmap bitmap;
@@ -54,11 +60,13 @@ void WorkerThread::packFile(QString path)
   //next magic was needed
   int n = 0;
   for (int y = 0; y < bitmap.height; ++y)
+  {
     for (int x = 0; x < bitmap.width; ++x)
     {
       bitmap.data[n] = img.pixel(x, y);
       n++;
     }
+  }
   std::function<void(int)> callback = [this](int progress) { emit progressUpdated(progress, fileName); };
   std::size_t dataSize = barch::convertGs2Barch(bitmap, callback);
 
@@ -116,5 +124,6 @@ void WorkerThread::unpackFile(QString path)
   {
     qWarning() << "Something crashed";
     emit taskCompleted(fileName);
+    emit errorMessage("we chashed during packing");
   }
 }

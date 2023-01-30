@@ -14,6 +14,7 @@ public:
 signals:
   void progressUpdated(int, QString);
   void taskCompleted(QString);
+  void errorMessage(QString);
 
 protected:
   void run();

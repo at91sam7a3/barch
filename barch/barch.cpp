@@ -49,7 +49,14 @@ std::size_t barch::convertGs2Barch(Bitmap &bitmap, std::function<void(int)> prog
             compressor.addByte(bitmap.data[i+j]);
         //using namespace std::chrono_literals;
         //std::this_thread::sleep_for(1ms);
-        progress(100*i/dataSize);
+        static int prog =int(100*i/dataSize);
+        int newprog = int(100*i/dataSize);
+        if(newprog!=prog) //done to avoid spamming ui thread
+        {
+            prog=newprog;
+            progress(newprog);
+        }
+
 
     }
     compressor.finalize();
@@ -89,15 +96,16 @@ void barch::convertBarch2Gs( Bitmap &bitmap, size_t compressedDataSize,std::func
         {
             bmpBuffer.push_back(decompressor.popByte());
         }
-        progress(100*bmpBuffer.size()/bmpBuffer.capacity());
+        static int oldprog = int(100*bmpBuffer.size()/bmpBuffer.capacity());
+        int newprog = (100*bmpBuffer.size()/bmpBuffer.capacity());
+        if(newprog != oldprog)
+        {
+            oldprog = newprog;
+            progress(newprog);
+        }
     }
-    std::ofstream raw2;
-    raw2.open("/home/oleksii/raw_ui-decoded777.hex", std::ios::binary | std::ios::out);
-    raw2.write((const char*)bmpBuffer.data(),bmpBuffer.size());
-    raw2.close();
     free(bitmap.data);
     bitmap.data = (byte*)malloc(bmpBuffer.size());
     memcpy(bitmap.data, bmpBuffer.data(),bmpBuffer.size());
-
     progress(100);
 }

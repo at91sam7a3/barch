@@ -6,6 +6,7 @@
 
 FileListModel::FileListModel(const QString& currentPath)
   : m_currentFolder(currentPath)
+  , m_filtered(true)
 {
   updateModel();
 }
@@ -35,10 +36,15 @@ QVariant FileListModel::data(const QModelIndex& index, int role) const
       {
         return "BMP";
       }
-      else
+      if (filename.toLower().contains(".barch"))
       {
         return "BARCH";
       }
+      if (filename.toLower().contains(".png"))
+      {
+        return "PNG";
+      }
+      return "Not Supported";
     case RoleSize:
     {
       QDir dir(m_currentFolder);
@@ -68,6 +74,8 @@ void FileListModel::updateModel()
   //assume the directory exists and contains some files and you want all png and barch files
   QDir directory(m_currentFolder);
   beginResetModel();
+  if(m_filtered)
+  {
   m_lstValues = directory.entryList(QStringList() << "*.png"
                                                   << "*.PNG"
                                                   << "*.bmp"
@@ -75,6 +83,12 @@ void FileListModel::updateModel()
                                                   << "*.barch"
                                                   << "*.BARCH",
                                     QDir::Files);
+  }
+  else
+  {
+      m_lstValues = directory.entryList(QStringList() << "*.*",
+                                        QDir::Files);
+  }
   endResetModel();
   qWarning() << "Model with elements: " << m_lstValues.size();
 }
@@ -121,4 +135,18 @@ void FileListModel::complete(QString filename)
 {
   m_filesInProgress.remove(filename);
   updateModel();
+}
+
+bool FileListModel::filtered() const
+{
+    return m_filtered;
+}
+
+void FileListModel::setFiltered(bool newFiltered)
+{
+    if (m_filtered == newFiltered)
+        return;
+    m_filtered = newFiltered;
+    emit filteredChanged();
+    updateModel();
 }
