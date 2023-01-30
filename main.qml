@@ -11,7 +11,7 @@ Window {
     ColumnLayout {
         anchors.fill: parent
         Rectangle {
-            height: 25
+            Layout.preferredHeight : 25
             Layout.fillWidth: true
             border.color: "black"
             border.width: 1
@@ -25,7 +25,18 @@ Window {
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
             }
+
         }
+
+        Checkbox {
+            Layout.preferredHeight: 25
+            Layout.preferredWidth: 100
+            Layout.leftMargin: 20
+            checked: true
+            text: "Apply supported types filter to list"
+            onCheckedChanged: FileListModel.filtered = checked
+        }
+
         ListView {
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -88,7 +99,7 @@ Window {
 
                     Button {
                         visible: Progress === 0
-                        text: Type === "BMP"  ? "Pack" : "Unpack"
+                        text: Type === "BARCH"  ?  "Unpack" : "Pack"
                         anchors.fill: parent
                         anchors.margins: 3
                         onClick: uiController.convert(Name);
@@ -105,5 +116,8 @@ Window {
             }
         }
 
+    }
+    MessageBox {
+        id: messageBox
     }
 }
