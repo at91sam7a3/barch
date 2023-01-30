@@ -3,7 +3,5 @@
         <file>main.qml</file>
         <file>Button.qml</file>
         <file>ProgressBar.qml</file>
-        <file>MessageBox.qml</file>
-        <file>Checkbox.qml</file>
     </qresource>
 </RCC>

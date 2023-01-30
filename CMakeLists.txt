@@ -22,8 +22,6 @@ set(PROJECT_SOURCES
         uicontroller.hpp
         workerthread.cpp
         workerthread.hpp
-        messageboxcontroller.hpp
-        messageboxcontroller.cpp
         qml.qrc
 )
 
